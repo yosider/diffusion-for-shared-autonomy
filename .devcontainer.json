@@ -1,10 +1,7 @@
 {
     "name": "diffusion-for-shared-autonomy",
-    // "dockerFile": "docker/Dockerfile",
-    // "context": "..",
-    "dockerFile": "Dockerfile",
-    "context": ".",
-    // "context": "..",
+    "dockerFile": "docker/Dockerfile",
+    "context": "docker/",
     "runArgs": [
         "--gpus=all",
         // "--privileged",
