@@ -14,3 +14,5 @@ wandb/
 .env.secret
 .output/
 etc/
+
+.python-version

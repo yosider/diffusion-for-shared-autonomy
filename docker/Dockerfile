@@ -48,7 +48,7 @@ RUN pip install pytest pytest-forked lz4 pyyaml
 RUN pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
 
 # Install typical dependencies
-RUN pip install einops sklearn tqdm scipy h5py matplotlib
+RUN pip install einops scikit-learn tqdm scipy h5py matplotlib
 
 # install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -89,6 +89,7 @@ COPY ./vendor/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 # https://stackoverflow.com/a/72376058/7057866
 WORKDIR /opt/mujoco_py
 COPY ./vendor ./vendor
+# COPY vendor vendor
 
 RUN mkdir -p /usr/local/etc/mujoco \
     && wget https://mujoco.org/download/mujoco210-linux-x86_64.tar.gz -O mujoco.tar.gz \

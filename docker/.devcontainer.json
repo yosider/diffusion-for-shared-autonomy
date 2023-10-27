@@ -1,0 +1,35 @@
+{
+    "name": "diffusion-for-shared-autonomy",
+    // "dockerFile": "docker/Dockerfile",
+    // "context": "..",
+    "dockerFile": "Dockerfile",
+    "context": ".",
+    // "context": "..",
+    "runArgs": [
+        "--gpus=all",
+        // "--privileged",
+        "--rm"
+    ],
+    "remoteEnv": {
+        "WANDB_API_KEY": "${localEnv:WANDB_API_KEY}"
+    },
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/code,type=bind",
+        "source=${localWorkspaceFolder}/data-dir,target=/data,type=bind",
+        "source=${localWorkspaceFolder}/output-dir,target=/outdir,type=bind"
+    ],
+    "workspaceFolder": "/code",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "ms-python.isort",
+                "ms-python.flake8",
+                "mhutchie.git-graph",
+                "usernamehw.errorlens"
+                // "GitHub.copilot"
+            ]
+        }
+    }
+}
