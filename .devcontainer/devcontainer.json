@@ -1,7 +1,7 @@
 {
     "name": "diffusion-for-shared-autonomy",
-    "dockerFile": "docker/Dockerfile",
-    "context": "docker/",
+    "dockerFile": "../docker/Dockerfile",
+    "context": "../docker",
     "runArgs": [
         "--gpus=all",
         "--rm"
