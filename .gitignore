@@ -16,3 +16,4 @@ wandb/
 etc/
 
 .python-version
+tmp/
