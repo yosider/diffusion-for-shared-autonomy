@@ -5,7 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    runtime: nvidia
     environment:
       - WANDB_API_KEY=${WANDB_API_KEY}
     volumes:
@@ -13,3 +12,18 @@ services:
       - ${REMOTE_WORKSPACE}/data-dir:/data
       - ${REMOTE_WORKSPACE}/output-dir:/outdir
     working_dir: /code
+    runtime: nvidia
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           capabilities: [gpu]
+    #           device_ids: ['all']
+    #           # count: 2
+    stdin_open: true
+    tty: true
+    # command: /bin/bash
+    command: /bin/bash -c "while true; do sleep 1000; done"
+
+
