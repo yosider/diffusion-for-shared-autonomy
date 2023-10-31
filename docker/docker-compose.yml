@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  diffusion-for-shared-autonomy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    runtime: nvidia
+    environment:
+      - WANDB_API_KEY=${WANDB_API_KEY}
+    volumes:
+      - ${REMOTE_WORKSPACE}:/code
+      - ${REMOTE_WORKSPACE}/data-dir:/data
+      - ${REMOTE_WORKSPACE}/output-dir:/outdir
+    working_dir: /code
