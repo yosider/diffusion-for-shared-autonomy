@@ -1,26 +1,10 @@
 {
-    "name": "diffusion-for-shared-autonomy",
-    "dockerFile": "../docker/Dockerfile",
-    "context": "../docker",
-    "runArgs": [
-        "--gpus=all",
-        "--rm"
+    "name": "Diffusion for Shared Autonomy",
+    "dockerComposeFile": [
+        "../docker/docker-compose.yml"
     ],
-    "remoteEnv": {
-        "WANDB_API_KEY": "${localEnv:WANDB_API_KEY}"
-    },
-    "workspaceMount": "source=${localWorkspaceFolder},target=/code,type=bind",
+    "service": "diffusion-for-shared-autonomy",
     "workspaceFolder": "/code",
-    "mounts": [
-        "source=${localWorkspaceFolder}/data-dir,target=/data,type=bind",
-        "source=${localWorkspaceFolder}/output-dir,target=/outdir,type=bind"
-        // "source=C:\\Users\\yoshi\\works\\diffusion-for-shared-autonomy,target=/code,type=bind",
-        // "source=C:\\Users\\yoshi\\works\\diffusion-for-shared-autonomy,target=/data,type=bind",
-        // "source=C:\\Users\\yoshi\\works\\diffusion-for-shared-autonomy,target=/outdir,type=bind"
-        // "source=/mnt/c/Users/yoshi/works/diffusion-for-shared-autonomy,target=/code,type=bind",
-        // "source=/mnt/c/Users/yoshi/works/diffusion-for-shared-autonomy,target=/data,type=bind",
-        // "source=/mnt/c/Users/yoshi/works/diffusion-for-shared-autonomy,target=/outdir,type=bind"
-    ],
     "customizations": {
         "vscode": {
             "extensions": [

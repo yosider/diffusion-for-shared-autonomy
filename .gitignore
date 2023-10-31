@@ -15,5 +15,6 @@ wandb/
 .output/
 etc/
 
+.env
 .python-version
 tmp/
