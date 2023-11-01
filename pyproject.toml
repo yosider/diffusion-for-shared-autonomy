@@ -1,0 +1,22 @@
+[project]
+name = "diffusion_for_shared_autonomy"
+version = "0.1.0"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["diffusha"]
+
+[tool.black]
+line-length = 88
+
+[tool.flake8]
+ignore = "E203, W503"
+max-line-length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_third_party = []
