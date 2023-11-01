@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    user: 1002:1002 # FIXME: replace with your user/group id
     environment:
       - WANDB_API_KEY=${WANDB_API_KEY}
       - REMOTE_WORKSPACE=${REMOTE_WORKSPACE}
