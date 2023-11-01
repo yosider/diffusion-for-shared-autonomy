@@ -4,23 +4,24 @@ This script follows the settings of https://arxiv.org/abs/1812.05905 as much
 as possible.
 """
 from __future__ import annotations
-import os
+
 import argparse
 import logging
+import os
 import sys
+from pathlib import Path
 
 import gym
 import gym.wrappers
+import pfrl
+from pfrl import experiments, utils
+
+import wandb
 from diffusha.config.default_args import Args
 
-import pfrl
-from pathlib import Path
-from pfrl import experiments, utils
-import wandb
 from .env import make_env
 from .env.eval_hook import WandBLogger
 from .utils.agent import get_agent
-
 
 TIME_LIMIT = 1000
 
@@ -78,8 +79,6 @@ def main(args, outdir):
 
 
 if __name__ == "__main__":
-    import os
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--env-name",

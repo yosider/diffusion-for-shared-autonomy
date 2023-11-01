@@ -1,24 +1,30 @@
 """MLP for naive Behavior Cloning"""
 
 from pathlib import Path
+
 import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
+
 import wandb
+from diffusha.actor.base import Actor
+from diffusha.config.default_args import Args
 from diffusha.data_collection.env import make_env
 from diffusha.data_collection.train_sac import TIME_LIMIT
-from diffusha.config.default_args import Args
-from diffusha.diffusion.train import ExpertTransitionDataset, MultiExpertTransitionDataset
-from diffusha.actor.base import Actor
-from diffusha.diffusion.evaluation.eval import evaluate
+from diffusha.diffusion.train import (  # MultiExpertTransitionDataset,
+    ExpertTransitionDataset,
+)
 
-device='cuda'
+# from diffusha.diffusion.evaluation.eval import evaluate
+
+
+device = "cuda"
 
 # HARDCODED
-bc_policy_dir = '/data/bc_policy'
-data_root_dir = '/data/hosted_data/replay'
+bc_policy_dir = "/data/bc_policy"
+data_root_dir = "/data/hosted_data/replay"
 
 
 class BCActor(Actor):
@@ -36,7 +42,7 @@ class BCActor(Actor):
         return action
 
 
-def get_model(obs_size, action_size, policy_output_scale=1.):
+def get_model(obs_size, action_size, policy_output_scale=1.0):
     policy = nn.Sequential(
         nn.Linear(obs_size, 128),
         nn.ReLU(),
@@ -59,7 +65,7 @@ def main(**kwargs):
     # eval_freq = 1000
 
     sample_env = make_env(Args.env_name, test=False, split_obs=True, seed=Args.seed)
-    if hasattr(sample_env, 'copilot_observation_space'):
+    if hasattr(sample_env, "copilot_observation_space"):
         obs_space = sample_env.copilot_observation_space
     else:
         obs_space = sample_env.observation_space
@@ -71,18 +77,17 @@ def main(**kwargs):
 
     # actor = BCActor(model, sample_env.action_space)
 
-    if 'LunarLander' in Args.env_name:
-        simple_envname = 'lunarlander'
-        level = Args.env_name.split('-')[-1]
+    if "LunarLander" in Args.env_name:
+        simple_envname = "lunarlander"
+        level = Args.env_name.split("-")[-1]
         data_dir = Path(data_root_dir) / simple_envname / level / "randp_0.0"
-        model_path = Path(bc_policy_dir) / simple_envname / level / 'bc_model.pt'
-    elif 'BlockPush' in Args.env_name:
-        simple_envname = 'blockpush'
+        model_path = Path(bc_policy_dir) / simple_envname / level / "bc_model.pt"
+    elif "BlockPush" in Args.env_name:
+        simple_envname = "blockpush"
         data_dir = Path(data_root_dir) / simple_envname / "randp_0.0"
-        model_path = Path(bc_policy_dir) / simple_envname / 'bc_model.pt'
+        model_path = Path(bc_policy_dir) / simple_envname / "bc_model.pt"
     else:
         raise ValueError()
-
 
     dataset = ExpertTransitionDataset(data_dir, obs_size, act_size)
     # dataset = MultiExpertTransitionDataset(data_dir, obs_size, act_size)
@@ -90,7 +95,9 @@ def main(**kwargs):
 
     optimizer = torch.optim.Adam(model.parameters(), lr=3e-4)
 
-    make_eval_env = lambda: make_env(Args.env_name, test=True, seed=Args.seed, time_limit=TIME_LIMIT)
+    make_eval_env = lambda: make_env(
+        Args.env_name, test=True, seed=Args.seed, time_limit=TIME_LIMIT
+    )
 
     losses = []
     for step in range(Args.num_training_steps):
@@ -115,8 +122,7 @@ def main(**kwargs):
 
         losses.append(loss.item())
         if step > 0 and step % log_freq == 0:
-            wandb.log({'train/loss': sum(losses) / len(losses),
-                       'step': step})
+            wandb.log({"train/loss": sum(losses) / len(losses), "step": step})
             losses = []
 
         # if step % eval_freq == 0:
@@ -128,30 +134,34 @@ def main(**kwargs):
         #         'step': step,
         #     })
 
-    simple_envname = Args.env_name.split(':')[-1].lower()
+    simple_envname = Args.env_name.split(":")[-1].lower()
     # fpath = f'/data/bc_policy/{simple_envname}'
     print(f"Saving the BC model to {model_path}")
     model_path.parent.mkdir(mode=0o775, exist_ok=True, parents=True)
-    torch.save({'model': model.state_dict(), 'optimizer': optimizer.state_dict()}, model_path)
+    torch.save(
+        {"model": model.state_dict(), "optimizer": optimizer.state_dict()}, model_path
+    )
     print(f"model saved at {model_path}")
 
 
-if __name__ == '__main__':
-    import os
+if __name__ == "__main__":
     import argparse
+    import os
+
     from params_proto.hyper import Sweep
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sweep-file", type=str,
-                        help="sweep file")
-    parser.add_argument("-l", "--line-number",
-                        type=int, help="line number of the sweep-file")
+    parser.add_argument("--sweep-file", type=str, help="sweep file")
+    parser.add_argument(
+        "-l", "--line-number", type=int, help="line number of the sweep-file"
+    )
     args = parser.parse_args()
 
     # Obtain kwargs from Sweep
     sweep = Sweep(Args).load(args.sweep_file)
     kwargs = list(sweep)[args.line_number]
 
-    if 'CUDA_VISIBLE_DEVICES' not in os.environ:
+    if "CUDA_VISIBLE_DEVICES" not in os.environ:
         num_gpus = 1
         cvd = args.line_number % num_gpus
         os.environ["CUDA_VISIBLE_DEVICES"] = str(cvd)
@@ -161,8 +171,8 @@ if __name__ == '__main__':
     wandb.login()
     wandb.init(
         # Set the project where this run will be logged
-        project='diffusha-diffusion-bc-randp',
-        config=vars(Args)
+        project="diffusha-diffusion-bc-randp",
+        config=vars(Args),
     )
 
     main()

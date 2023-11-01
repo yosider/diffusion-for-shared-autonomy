@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
+import argparse
 import os
 from pathlib import Path
+
 import numpy as np
 import torch
-import argparse
-from diffusha.data_collection.env import make_env
-from diffusha.data_collection.train_sac import TIME_LIMIT
-from .ddpm import Diffusion
+
 import wandb
 from diffusha.config.default_args import Args
+from diffusha.data_collection.env import make_env
+from diffusha.data_collection.train_sac import TIME_LIMIT
 from diffusha.diffusion.eval import eval_diffusion
+
+from .ddpm import Diffusion
 
 
 def main(**kwargs):

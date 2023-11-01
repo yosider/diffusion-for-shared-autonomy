@@ -2,14 +2,16 @@
 
 """This script reads from replay buffer of block push env, and flip obs and action."""
 
+from pathlib import Path
+
 import numpy as np
 import torch
-from pathlib import Path
-from diffusha.data_collection.generate_data import ReplayBuffer
 
+from diffusha.data_collection.generate_data import ReplayBuffer
 
 if __name__ == "__main__":
     import argparse
+
     from diffusha.data_collection.env import make_env
 
     parser = argparse.ArgumentParser()

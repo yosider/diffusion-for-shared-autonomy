@@ -3,14 +3,16 @@
 
 Before running this file, trajectories must have been generated with `eval_assistance.py`
 """
-import functools
-from typing import Sequence, Tuple
-import numpy as np
-import torch
-from diffusha.config.default_args import Args
 import csv
+import functools
 import os
 import time
+from typing import Sequence, Tuple
+
+import numpy as np
+import torch
+
+from diffusha.config.default_args import Args
 
 
 @functools.cache
@@ -62,8 +64,8 @@ def get_stats(sequence: Sequence):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
     import argparse
+    from pathlib import Path
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

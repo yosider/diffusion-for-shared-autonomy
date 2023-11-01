@@ -1,21 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from csv_2_dict import csv_2_dict, Entry
+from csv_2_dict import Entry, csv_2_dict
 
 
 def set_fig():
     # fig setting
     import yaml
     from yaml.loader import SafeLoader
+
     # Open the file and load the file
-    with open('matplotlibrc.yaml') as f:
+    with open("matplotlibrc.yaml") as f:
         plt_std = yaml.load(f, Loader=SafeLoader)
-    plt.style.use('seaborn-whitegrid')
-    palette = plt.get_cmap('Set1')
-    font1 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 13,
-             }
+    plt.style.use("seaborn-whitegrid")
+    palette = plt.get_cmap("Set1")
+    font1 = {
+        "family": "Times New Roman",
+        "weight": "normal",
+        "size": 13,
+    }
 
     plt.rcParams["figure.figsize"] = [6.00, 6.00]
     plt.rcParams["figure.autolayout"] = True
@@ -23,7 +25,7 @@ def set_fig():
         plt.rcParams[key] = value
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -57,7 +59,7 @@ if __name__ == '__main__':
         Laggy = p
         Noisy = p
         assisted = True
-        actors = ['noisy', 'laggy']
+        actors = ["noisy", "laggy"]
         success_plot = True
         bench_mean = True
         for index, actor in enumerate(actors):
@@ -73,31 +75,31 @@ if __name__ == '__main__':
             bench = []
             diff_model = []
 
-            if actor == 'noisy':
+            if actor == "noisy":
                 p = Noisy
-            elif actor == 'laggy':
+            elif actor == "laggy":
                 p = Laggy
             else:
                 pass
 
-            if actor == 'benchmark':
+            if actor == "benchmark":
                 assisted = False
-                actor = 'expert'
-                plot_label = 'benchmark(expert with no assistance)'
+                actor = "expert"
+                plot_label = "benchmark(expert with no assistance)"
 
-            elif actor == '~di_na':
+            elif actor == "~di_na":
                 assisted = False
-                plot_label = 'copilot(diffusion model)'
+                plot_label = "copilot(diffusion model)"
             else:
                 assisted = True
                 plot_label = actor
 
-            title = f'{task.lower()}_rates_{actor}_{int(p * 100)}'
+            title = f"{task.lower()}_rates_{actor}_{int(p * 100)}"
 
             for index, f in enumerate(forward):
                 generate_key = str(f) + str(p) + actor + str(assisted)
-                bench_entry = dicts[0][str(f) + str(p) + 'expert' + 'False']
-                diff_model_entry = dicts[0][str(f) + str(p) + '~di_na' + 'False']
+                bench_entry = dicts[0][str(f) + str(p) + "expert" + "False"]
+                diff_model_entry = dicts[0][str(f) + str(p) + "~di_na" + "False"]
                 diff_model.append(diff_model_entry.left[0])
                 bench.append(bench_entry.left[0])
                 for dic in dicts:
@@ -111,14 +113,14 @@ if __name__ == '__main__':
                     timeout[index].append(entry.timeout[0])
                     right[index].append(entry.right[0])
 
-            colors = ['#1F449C', '#A8B6CC', '#F05039']
+            colors = ["#1F449C", "#A8B6CC", "#F05039"]
             if bench_mean:
                 bench = np.array(bench).mean()
                 bench = [bench for _ in range(len(forward))]
                 diff_model = np.array(diff_model).mean()
                 diff_model = [diff_model for _ in range(len(forward))]
             if success_plot:
-                labels = ['Correct goal', 'Incorrect goal', 'Timeout']
+                labels = ["Correct goal", "Incorrect goal", "Timeout"]
                 for index, attr in enumerate([left, right, timeout]):
                     mean = np.array(attr).mean(axis=1)
                     var = np.array(attr).std(axis=1)
@@ -131,14 +133,35 @@ if __name__ == '__main__':
                     """
                     r1 = list(map(lambda x: x[0] - x[1], zip(mean, var)))
                     r2 = list(map(lambda x: x[0] + x[1], zip(mean, var)))
-                    plt.plot(forward, mean, color=colors[index], label=labels[index], marker="o", linewidth=3.0)
+                    plt.plot(
+                        forward,
+                        mean,
+                        color=colors[index],
+                        label=labels[index],
+                        marker="o",
+                        linewidth=3.0,
+                    )
                     plt.fill_between(forward, r1, r2, color=colors[index], alpha=0.17)
-                plt.plot(forward, np.array(bench), color=colors[0], label='_nolegend_', linewidth=2.0, linestyle='--',
-                         alpha=1.0)
-                plt.plot(forward, np.array(diff_model), color=colors[0], label='_nolegend_', linewidth=2.0,
-                         linestyle=':', alpha=1.0)
+                plt.plot(
+                    forward,
+                    np.array(bench),
+                    color=colors[0],
+                    label="_nolegend_",
+                    linewidth=2.0,
+                    linestyle="--",
+                    alpha=1.0,
+                )
+                plt.plot(
+                    forward,
+                    np.array(diff_model),
+                    color=colors[0],
+                    label="_nolegend_",
+                    linewidth=2.0,
+                    linestyle=":",
+                    alpha=1.0,
+                )
 
-            plt.legend(loc='upper right')
+            plt.legend(loc="upper right")
             plt.tight_layout()
             plt.xlabel(r"Forward Diffusion Ratio: $\gamma$")
             plt.xlim((0, 1.0))

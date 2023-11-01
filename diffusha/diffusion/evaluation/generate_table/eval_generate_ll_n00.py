@@ -3,13 +3,15 @@
 
 Before running this file, trajectories must have been generated with `eval_assistance.py`
 """
+import csv
 import functools
+import os
 from typing import Sequence, Tuple
+
 import numpy as np
 import torch
+
 from diffusha.config.default_args import Args
-import csv
-import os
 
 
 @functools.cache
@@ -58,9 +60,9 @@ def get_stats(sequence: Sequence):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
     import argparse
     import time
+    from pathlib import Path
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -89,8 +91,8 @@ if __name__ == "__main__":
     #     / args.dir_name
     # )
 
-    user_config = 'naive_blending'
-    directory = Path(args.out_dir) / 'assistance' / args.env_name.lower() / user_config
+    user_config = "naive_blending"
+    directory = Path(args.out_dir) / "assistance" / args.env_name.lower() / user_config
 
     n = 3
     group_size = 100
@@ -102,7 +104,12 @@ if __name__ == "__main__":
         #     / args.wandb_run_id
         #     / f"{task}-{args.dir_name}-{group}.csv"
         # )
-        file_path = Path(args.out_dir) / 'assistance' / args.env_name.lower() / f'{user_config}-{group}.csv'
+        file_path = (
+            Path(args.out_dir)
+            / "assistance"
+            / args.env_name.lower()
+            / f"{user_config}-{group}.csv"
+        )
         csvfile = open(file_path, "w")
         writer = csv.writer(csvfile)
 
@@ -122,7 +129,9 @@ if __name__ == "__main__":
             lag_p = config["Args"]["laggy_actor_repeat_prob"]
             noise_p = config["Args"]["noisy_actor_eps"]
             writer.writerow([f"FWR={fwr}P={lag_p}"])
-            import pdb; pdb.set_trace()
+            import pdb
+
+            pdb.set_trace()
 
             template = (
                 "{actor}\t{return_mean:.2f} +/- {return_std:.2f}\t{avg_return_mean:.2f} +/- {avg_return_std:.2f}\t{ep_len_mean:.1f} +/- {ep_len_std:.1f}\t{action_diffs_mean:.1f} +/- {action_diffs_std:.1f}\t"

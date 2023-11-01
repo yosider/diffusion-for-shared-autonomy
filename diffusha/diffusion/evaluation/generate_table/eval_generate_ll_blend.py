@@ -3,13 +3,15 @@
 
 Before running this file, trajectories must have been generated with `eval_assistance.py`
 """
+import csv
 import functools
+import os
 from typing import Sequence, Tuple
+
 import numpy as np
 import torch
+
 from diffusha.config.default_args import Args
-import csv
-import os
 
 
 @functools.cache
@@ -58,9 +60,9 @@ def get_stats(sequence: Sequence):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
     import argparse
     import time
+    from pathlib import Path
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -88,8 +90,14 @@ if __name__ == "__main__":
     #     / args.dir_name
     # )
 
-    user_config = 'naive_blending'
-    directory = Path(Args.pt_dir) / 'results-20230405' / 'assistance' / args.env_name.lower() / user_config
+    user_config = "naive_blending"
+    directory = (
+        Path(Args.pt_dir)
+        / "results-20230405"
+        / "assistance"
+        / args.env_name.lower()
+        / user_config
+    )
 
     n = 3
     group_size = 100
@@ -101,7 +109,13 @@ if __name__ == "__main__":
         #     / args.wandb_run_id
         #     / f"{task}-{args.dir_name}-{group}.csv"
         # )
-        file_path = Path(Args.pt_dir) / 'results-20230405' / 'assistance' / args.env_name.lower() / f'{user_config}-{task}-{group}.csv'
+        file_path = (
+            Path(Args.pt_dir)
+            / "results-20230405"
+            / "assistance"
+            / args.env_name.lower()
+            / f"{user_config}-{task}-{group}.csv"
+        )
         csvfile = open(file_path, "w")
         writer = csv.writer(csvfile)
 

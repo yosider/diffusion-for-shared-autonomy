@@ -1,26 +1,25 @@
 from __future__ import annotations
 
 import functools
+import math
 import os
 import pdb
 import time
 from pathlib import Path
-from typing import Callable, List, Tuple
-import math
-
-import numpy as np
-import torch
-from diffusha.actor.assistive import DiffusionAssistedActor
-import wandb
-from diffusha.actor.base import Actor, choose_obs_if_necessary
-from diffusha.data_collection.env import is_lunarlander, is_maze2d, is_blockpush
-import pfrl
-
-from diffusha.utils.eval import record_traj
 
 # Magic to avoid circular import due to type hint annotation
 # https://adamj.eu/tech/2021/05/13/python-type-hints-how-to-fix-circular-imports/
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, List, Tuple
+
+import numpy as np
+import pfrl
+import torch
+
+import wandb
+from diffusha.actor.assistive import DiffusionAssistedActor
+from diffusha.actor.base import Actor, choose_obs_if_necessary
+from diffusha.data_collection.env import is_blockpush, is_lunarlander, is_maze2d
+from diffusha.utils.eval import record_traj
 
 if TYPE_CHECKING:
     from diffusha.diffusion.ddpm import DiffusionModel
@@ -368,8 +367,9 @@ def evaluate(
     render_scale_img=1.0,
 ) -> dict:
     """Evaluate actor on the env created with make_env(), and returns a dictionary of evaluation results."""
-    from diffusha.data_collection.env.eval_hook import get_eval_frame
     from tqdm import tqdm
+
+    from diffusha.data_collection.env.eval_hook import get_eval_frame
 
     # NOTE: It's better to have an identical set of episodes for every evaluation, thus creating it every time.
     # env = make_env(test=True, seed=0, time_limit=TIME_LIMIT)
@@ -446,7 +446,9 @@ def evaluate(
             if save_video:
                 if not done:
                     # frames.append(sample_env.render())
-                    frames.append(get_eval_frame(sample_env, ep, step, scale=render_scale_img))
+                    frames.append(
+                        get_eval_frame(sample_env, ep, step, scale=render_scale_img)
+                    )
                 else:
                     last_frame = get_eval_frame(
                         sample_env, ep, step, info=info, scale=render_scale_img

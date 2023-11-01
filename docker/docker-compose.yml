@@ -18,10 +18,8 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              capabilities: [gpu]
-              device_ids: ['all']
+              capabilities: [ gpu ]
+              device_ids: [ 'all' ]
     stdin_open: true
     tty: true
     command: /bin/bash
-
-

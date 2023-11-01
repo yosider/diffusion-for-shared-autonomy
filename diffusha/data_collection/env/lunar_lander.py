@@ -1,30 +1,28 @@
 #!/usr/bin/env python3
-"""Copied from https://github.com/openai/gym/blob/0.22.0/gym/envs/box2d/lunar_lander.py"""
+"""
+Copied from https://github.com/openai/gym/blob/0.22.0/gym/envs/box2d/lunar_lander.py
+"""
 
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-import sys
 from typing import Optional
 
+import Box2D
+import gym
 import numpy as np
 import pygame
-from pygame import gfxdraw
-
-
-import Box2D
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
 )
-
-import gym
 from gym import error, spaces
-from gym.utils import seeding, EzPickle
+from gym.utils import EzPickle, seeding
+from pygame import gfxdraw
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -118,7 +116,8 @@ class LunarLander(gym.Env, EzPickle):
     The episode finishes if:
     1) the lander crashes (the lander body gets in contact with the moon);
     2) the lander gets outside of the viewport (`x` coordinate is greater than 1);
-    3) the lander is not awake. From the [Box2D docs](https://box2d.org/documentation/md__d_1__git_hub_box2d_docs_dynamics.html#autotoc_md61),
+    3) the lander is not awake. From the [Box2D docs]
+        (https://box2d.org/documentation/md__d_1__git_hub_box2d_docs_dynamics.html#autotoc_md61),
         a body which is not awake is a body which doesn't move and doesn't
         collide with any other body:
     > When Box2D determines that a body (or group of bodies) has come to rest,
@@ -150,7 +149,14 @@ class LunarLander(gym.Env, EzPickle):
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    def __init__(self, continuous: bool = False, fuel_penalty: bool = True, task: str = 'land', randomize_helipad: bool = False, spec = None):
+    def __init__(
+        self,
+        continuous: bool = False,
+        fuel_penalty: bool = True,
+        task: str = "land",
+        randomize_helipad: bool = False,
+        spec=None,
+    ):
         EzPickle.__init__(self)
         self.screen = None
         self.isopen = True
@@ -164,7 +170,7 @@ class LunarLander(gym.Env, EzPickle):
         self.continuous = continuous
 
         _state_size = 8
-        if task == 'reach':
+        if task == "reach":
             _state_size += 2
         if randomize_helipad:
             _state_size += 1
@@ -176,8 +182,14 @@ class LunarLander(gym.Env, EzPickle):
 
         if self.continuous:
             # Action is two floats [main engine, left-right engines].
-            # Main engine: -1..0 off, 0..+1 throttle from 50% to 100% power. Engine can't work with less than 50% power.
-            # Left-right:  -1.0..-0.5 fire left engine, +0.5..+1.0 fire right engine, -0.5..0.5 off
+            # Main engine:
+            # -1..0 off,
+            # 0..+1 throttle from 50% to 100% power.
+            # Engine can't work with less than 50% power.
+            # Left-right:
+            # -1.0..-0.5 fire left engine,
+            # +0.5..+1.0 fire right engine,
+            # -0.5..0.5 off
             self.action_space = spaces.Box(-1, +1, (2,), dtype=np.float32)
         else:
             # Nop, fire left engine, main engine, right engine
@@ -185,8 +197,8 @@ class LunarLander(gym.Env, EzPickle):
 
         self.fuel_penalty = fuel_penalty
 
-        print('LunarLander\ttask:', task)
-        assert task in ['reach', 'land', 'float'], f'Unknown task: {task}'
+        print("LunarLander\ttask:", task)
+        assert task in ["reach", "land", "float"], f"Unknown task: {task}"
         self.task = task
         self.randomize_helipad = randomize_helipad
 
@@ -230,7 +242,7 @@ class LunarLander(gym.Env, EzPickle):
 
         # randomize helipad x coord
         if self.randomize_helipad:
-            helipad_chunk = self.np_random.choice(range(1, CHUNKS-1))
+            helipad_chunk = self.np_random.choice(range(1, CHUNKS - 1))
         else:
             helipad_chunk = CHUNKS // 2
 
@@ -247,14 +259,14 @@ class LunarLander(gym.Env, EzPickle):
             for i in range(CHUNKS)
         ]
 
-        if self.task == 'reach':
+        if self.task == "reach":
             # Target
             radius = TARGET_R / SCALE
             # exclude middle half of the screen
-            self.target_cx = self.np_random.uniform(radius, W/2. - radius)
-            if self.target_cx >= W / 4.:
-                self.target_cx += W / 2.
-            self.target_cy = self.np_random.uniform(H/2 + radius, H - radius)
+            self.target_cx = self.np_random.uniform(radius, W / 2.0 - radius)
+            if self.target_cx >= W / 4.0:
+                self.target_cx += W / 2.0
+            self.target_cy = self.np_random.uniform(H / 2 + radius, H - radius)
             # print('target', self.target_cx, self.target_cy)
 
         self.moon = self.world.CreateStaticBody(
@@ -322,9 +334,9 @@ class LunarLander(gym.Env, EzPickle):
                 motorSpeed=+0.3 * i,  # low enough not to jump back into the sky
             )
             if i == -1:
-                rjd.lowerAngle = (
-                    +0.9 - 0.5
-                )  # The most esoteric numbers here, angled legs have freedom to travel within
+                # The most esoteric numbers here,
+                # angled legs have freedom to travel within
+                rjd.lowerAngle = +0.9 - 0.5
                 rjd.upperAngle = +0.9
             else:
                 rjd.lowerAngle = -0.9
@@ -458,39 +470,37 @@ class LunarLander(gym.Env, EzPickle):
             # (helipad_x - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2)
         ]
 
-        if self.task == 'reach':
+        if self.task == "reach":
             state += [
                 (self.target_cx - VIEWPORT_W / SCALE / 2) / (VIEWPORT_W / SCALE / 2),
-                (self.target_cy - (self.helipad_y + LEG_DOWN / SCALE)) / (VIEWPORT_H / SCALE / 2),
+                (self.target_cy - (self.helipad_y + LEG_DOWN / SCALE))
+                / (VIEWPORT_H / SCALE / 2),
             ]
 
         if self.randomize_helipad:
-            state += [
-                (helipad_x - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2)
-            ]
-
+            state += [(helipad_x - VIEWPORT_W / SCALE / 2) / (VIEWPORT_W / SCALE / 2)]
 
         reward = 0
 
-        if self.task == 'reach':
+        if self.task == "reach":
             _dx = (pos.x - self.target_cx) / (VIEWPORT_W / SCALE / 2)
             _dy = (pos.y - self.target_cy) / (VIEWPORT_H / SCALE / 2)
             shaping = (
-                - 100*np.sqrt(_dx*_dx + _dy*_dy) * 2
-                - 100*np.sqrt(state[2]*state[2] + state[3]*state[3])
-                - 100*abs(state[4])
-                + 10*state[6]
-                + 10*state[7]   # And ten points for legs contact, the idea is if you
+                -100 * np.sqrt(_dx * _dx + _dy * _dy) * 2
+                - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
+                - 100 * abs(state[4])
+                + 10 * state[6]
+                + 10 * state[7]  # And ten points for legs contact, the idea is if you
                 # lose contact again after landing, you get negative reward
             )
-        elif self.task == 'float':
+        elif self.task == "float":
             shaping = (
                 -100 * np.sqrt(state[0] * state[0] + state[1] * state[1])
                 - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
                 - 100 * abs(state[4])
             )
         else:
-            dx = (pos.x - helipad_x) / (VIEWPORT_W/SCALE/2)
+            dx = (pos.x - helipad_x) / (VIEWPORT_W / SCALE / 2)
             shaping = (
                 -100 * np.sqrt(dx * dx + state[1] * state[1])
                 - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
@@ -509,34 +519,33 @@ class LunarLander(gym.Env, EzPickle):
             )  # less fuel spent is better, about -30 for heuristic landing
             reward -= s_power * 0.03
 
-
         # Copied from deepassist
         oob = abs(state[0]) >= 1.0
         not_awake = not self.lander.awake
         at_site = self.helipad_x1 <= pos.x and pos.x <= self.helipad_x2
 
-        info = {'game_over_reason': ''}
+        info = {"game_over_reason": ""}
         done = False
 
         # Task-specific termination
-        if self.task == 'reach':
+        if self.task == "reach":
             _dx, _dy = pos.x - self.target_cx, pos.y - self.target_cy
-            if np.sqrt(_dx*_dx + _dy*_dy) < TARGET_R / SCALE:
+            if np.sqrt(_dx * _dx + _dy * _dy) < TARGET_R / SCALE:
                 # print('target is reached')
                 # target is reached
                 done = True
                 reward = +1000
                 self.lander.color1 = (0, 255, 0)
-                info['game_over_reason'] = 'reach-goal-reached'
-                info['goal'] = 'target-reached'
+                info["game_over_reason"] = "reach-goal-reached"
+                info["goal"] = "target-reached"
 
-        elif self.task == 'land':
+        elif self.task == "land":
             if not_awake:
                 # print('lander not awake')
                 done = True
-                info['game_over_reason'] = 'land-lander-not-awake'
+                info["game_over_reason"] = "land-lander-not-awake"
                 if at_site:
-                    info['goal'] = 'landed'
+                    info["goal"] = "landed"
                     reward = +1000
 
         if self.game_over or oob:
@@ -545,11 +554,11 @@ class LunarLander(gym.Env, EzPickle):
             reward = -100
             self.lander.color1 = (255, 0, 0)
             if oob:
-                info['game_over_reason'] = 'abs(state[0])>=1.0'
+                info["game_over_reason"] = "abs(state[0])>=1.0"
             elif self.game_over:
-                info['game_over_reason'] = 'body-contact'
+                info["game_over_reason"] = "body-contact"
             self.game_over = True
-            info['crashed'] = True
+            info["crashed"] = True
 
         return np.array(state, dtype=np.float32), reward, done, info
 
@@ -638,10 +647,16 @@ class LunarLander(gym.Env, EzPickle):
                         (204, 204, 0),
                     )
 
-        if self.task == 'reach':
+        if self.task == "reach":
             # draw target
-            # t = rendering.Transform(translation=np.array([self.target_cx, self.target_cy]))
-            pygame.draw.circle(self.surf, color=(255, 0, 0), center=(self.target_cx * SCALE, self.target_cy * SCALE), radius=TARGET_R)
+            # t = rendering.Transform(
+            #   translation=np.array([self.target_cx, self.target_cy]))
+            pygame.draw.circle(
+                self.surf,
+                color=(255, 0, 0),
+                center=(self.target_cx * SCALE, self.target_cy * SCALE),
+                radius=TARGET_R,
+            )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
@@ -683,7 +698,8 @@ def heuristic(env, s):
                   s[6] 1 if first leg has contact, else 0
                   s[7] 1 if second leg has contact, else 0
     returns:
-         a: The heuristic to be fed into the step function defined above to determine the next step and reward.
+         a: The heuristic to be fed into the step function defined above
+            to determine the next step and reward.
     """
 
     angle_targ = s[0] * 0.5 + s[2] * 1.0  # angle should point towards center
@@ -729,7 +745,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
 
         if render:
             still_open = env.render()
-            if still_open == False:
+            if not still_open:
                 break
 
         if steps % 20 == 0 or done:
@@ -747,8 +763,10 @@ class LunarLanderContinuous:
     def __init__(self):
         raise error.Error(
             "Error initializing LunarLanderContinuous Environment.\n"
-            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
-            "To use this environment, instead create it by specifying the continuous keyword in gym.make, i.e.\n"
+            "Currently, we do not support initializing this mode of environment "
+            "by calling the class directly.\n"
+            "To use this environment, instead create it "
+            "by specifying the continuous keyword in gym.make, i.e.\n"
             'gym.make("LunarLander-v2", continuous=True)'
         )
 

@@ -1,26 +1,28 @@
 from __future__ import annotations
+
+import random
+import time
 from collections import defaultdict
 from pathlib import Path
-import random
 from typing import Callable, Optional
+
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
+import torch.optim as optim
 
-import time
-
-
-from .utils import make_beta_schedule, extract
-from .models import ConditionalModel, EMA
-from diffusha.config.default_args import Args
 import wandb
+from diffusha.config.default_args import Args
+
+from .models import EMA, ConditionalModel
+from .utils import extract, make_beta_schedule
 
 
 class DiffusionCore:
     def __init__(self) -> None:
         from pfrl import utils
+
         from diffusha.data_collection.config.default_args import DCArgs
 
         utils.set_random_seed(DCArgs.seed)
@@ -332,17 +334,17 @@ class Trainer:
 
             # Evaluation
             if sample_env is not None and step % self.eval_every == 0:
-                from diffusha.diffusion.evaluation.eval_assistance import (
-                    eval_assisted_actors,
-                )
                 from diffusha.diffusion.evaluation.eval import (
                     eval_diffusion,
                     pointmaze_record_traj,
                 )
+                from diffusha.diffusion.evaluation.eval_assistance import (
+                    eval_assisted_actors,
+                )
 
                 def get_expert_agent(envname):
-                    from diffusha.diffusion.utils import initial_expert_agent
                     from diffusha.actor.waypoint_controller import WaypointActor
+                    from diffusha.diffusion.utils import initial_expert_agent
 
                     if "maze2d" in envname:
                         # Maze2d goal

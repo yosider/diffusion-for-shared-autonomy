@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import os
 from pathlib import Path
-import wandb
+
 import torch
 
-from diffusha.data_collection.env import make_env
-
+import wandb
 from diffusha.config.default_args import Args
+from diffusha.data_collection.env import make_env
 
 
 def prepare_diffusha(
@@ -19,7 +19,7 @@ def prepare_diffusha(
     noisy_actor_eps,
 ):
     """Load hyperparmeters from wandb, and load a pytorch model from birch/elm, and return an instantiated diffusion model."""
-    from diffusha.diffusion.ddpm import DiffusionModel, DiffusionCore
+    from diffusha.diffusion.ddpm import DiffusionCore, DiffusionModel
 
     Args._update(config)
 

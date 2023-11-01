@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-from copy import deepcopy
-import wandb
 import json
+from copy import deepcopy
 
-if __name__ == '__main__':
+import wandb
+
+if __name__ == "__main__":
     env2wandb = {
         "maze2d-simple-two-goals-v0": "takuma-yoneda/diffusha/ulh2ovtj",
         "LunarLander-v1": "takuma-yoneda/diffusha/24gbtia4",
         "LunarLander-v5": "takuma-yoneda/diffusha/qa3br4pa",
-        "BlockPushMultimodal-v1": "takuma-yoneda/diffusha/a6tc22h8"
+        "BlockPushMultimodal-v1": "takuma-yoneda/diffusha/a6tc22h8",
     }
 
     # Locally save a mapping from env to configurations

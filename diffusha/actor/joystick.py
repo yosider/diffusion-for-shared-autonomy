@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Adopted from https://github.com/cbschaff/rsa/blob/master/lunar_lander/joystick_agent.py"""
+"""
+Adopted from https://github.com/cbschaff/rsa/blob/master/lunar_lander/joystick_agent.py
+"""
 
-import time
-import pygame
 import numpy as np
+import pygame
+
 from diffusha.actor import Actor
 
 #####################################
@@ -19,10 +21,11 @@ class LunarLanderJoystickActor(Actor):
     def __init__(self, env, fps=50):
         """Init."""
         self.env = env
-        self.human_agent_action = np.array([0., 0.], dtype=np.float32)
+        self.human_agent_action = np.array([0.0, 0.0], dtype=np.float32)
         pygame.joystick.init()
-        joysticks = [pygame.joystick.Joystick(x)
-                     for x in range(pygame.joystick.get_count())]
+        joysticks = [
+            pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())
+        ]
         # print(joysticks)
         # if len(joysticks) != 1:
         #     raise ValueError("There must be exactly 1 joystick connected."
@@ -54,17 +57,13 @@ class LunarLanderJoystickActor(Actor):
         return action
 
     def reset(self):
-        self.human_agent_action[:] = 0.
+        self.human_agent_action[:] = 0.0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from diffusha.data_collection.env import make_env
 
-    env = make_env(
-        "LunarLander-v3",
-        seed=1,
-        test=False
-    )
+    env = make_env("LunarLander-v3", seed=1, test=False)
 
     actor = LunarLanderJoystickActor(env)
 

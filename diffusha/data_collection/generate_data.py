@@ -3,27 +3,29 @@
 """Script to generate trajectories from pretrained expert, only for LunarLander envs"""
 
 from __future__ import annotations
-from diffusha.actor import ExpertActor
-import os
-from datetime import datetime
-import random
-from pathlib import Path
+
 import argparse
+import os
+import random
+from datetime import datetime
+from pathlib import Path
 from typing import Optional
+
 import numpy as np
 import torch
 from pfrl import utils
-import wandb
 
+import wandb
+from diffusha.actor import ExpertActor
+from diffusha.config.default_args import Args
+from diffusha.data_collection.config.default_args import DCArgs
 from diffusha.data_collection.env.assistance_wrappers import (
     BlockPushMirrorObsActorWrapper,
 )
 
-from .utils.agent import get_agent
 from .env import make_env
 from .train_sac import TIME_LIMIT
-from diffusha.data_collection.config.default_args import DCArgs
-from diffusha.config.default_args import Args
+from .utils.agent import get_agent
 
 
 class ReplayBuffer:
@@ -196,7 +198,9 @@ def main(save_video):
                     replay_buffer.store(obs, act, qval)
 
                 print(
-                    f"step: {step} / {DCArgs.num_transitions}\tsum_rewards: {sum_rewards}\tep_len: {last_ep_step}"
+                    f"step: {step} / {DCArgs.num_transitions}"
+                    f"\tsum_rewards: {sum_rewards}"
+                    f"\tep_len: {last_ep_step}"
                 )
                 if ep < num_vis_episodes:
                     wandb.log(

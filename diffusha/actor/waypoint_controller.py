@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """D4RL Waypoint Controller actor"""
 import numpy as np
+from d4rl.pointmaze.waypoint_controller import WaypointController
 
 from .base import Actor
-from d4rl.pointmaze.waypoint_controller import WaypointController
+
 
 class WaypointActor(Actor):
     def __init__(self, obs_space, act_space, env) -> None:
@@ -14,7 +15,9 @@ class WaypointActor(Actor):
     def act(self, obs):
         position = obs[0:2]
         velocity = obs[2:4]
-        act, done = self.controller.get_action(position, velocity, self._env.unwrapped._target)
+        act, done = self.controller.get_action(
+            position, velocity, self._env.unwrapped._target
+        )
 
-        act= act.astype(np.float32)
+        act = act.astype(np.float32)
         return act

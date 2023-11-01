@@ -2,13 +2,15 @@
 """Partially adopted from https://github.com/cbschaff/rsa"""
 
 from typing import List
+
 import numpy as np
 import pfrl
+
 from diffusha.config.default_args import Args
 
 
-def choose_obs_if_necessary(obs, actor='pilot'):
-    assert actor in ['pilot', 'copilot']
+def choose_obs_if_necessary(obs, actor="pilot"):
+    assert actor in ["pilot", "copilot"]
 
     if isinstance(obs, dict):
         return obs[actor]
@@ -17,8 +19,6 @@ def choose_obs_if_necessary(obs, actor='pilot'):
     #     return [_obs[actor] for _obs in obs]
     else:
         return obs
-
-
 
 
 class Actor:
@@ -35,13 +35,18 @@ class Actor:
 
     def random_action(self, generator: np.random.Generator = None):
         if generator:
-            return generator.uniform(self.act_space.low, self.act_space.high, size=self.act_space.low.size)
+            return generator.uniform(
+                self.act_space.low, self.act_space.high, size=self.act_space.low.size
+            )
         else:
-            return np.random.uniform(self.act_space.low, self.act_space.high, size=self.act_space.low.size)
+            return np.random.uniform(
+                self.act_space.low, self.act_space.high, size=self.act_space.low.size
+            )
 
 
 class ZeroActor(Actor):
     """Output random actions."""
+
     def __init__(self, obs_space, act_space):
         """Init."""
         super().__init__(obs_space, act_space)
@@ -54,6 +59,7 @@ class ZeroActor(Actor):
 
 class RandomActor(Actor):
     """Output random actions."""
+
     def __init__(self, obs_space, act_space, seed: int = 0):
         """Init."""
         super().__init__(obs_space, act_space)
@@ -81,14 +87,18 @@ class ExpertActor(Actor):
 
 class LaggyActor(Actor):
     """Laggy actor"""
-    def __init__(self, obs_space, act_space, actor: Actor, repeat_prob: float, seed: int = 0):
+
+    def __init__(
+        self, obs_space, act_space, actor: Actor, repeat_prob: float, seed: int = 0
+    ):
         super().__init__(obs_space, act_space)
         self.actor = actor
         self.repeat_prob = repeat_prob
         self.actions = None
         self.np_random = np.random.default_rng(seed=seed)
 
-        # TODO: Maze needs to maintain self.repeat (previously we repeated the action for 5 times)
+        # TODO: Maze needs to maintain self.repeat
+        # (previously we repeated the action for 5 times)
 
     def act(self, ob, index=-1):
         """Act."""
@@ -104,7 +114,9 @@ class LaggyActor(Actor):
 
     def maybe_init_actions(self, num_envs):
         if self.actions is None:
-            self.actions = [self.random_action(generator=self.np_random) for _ in range(num_envs)]
+            self.actions = [
+                self.random_action(generator=self.np_random) for _ in range(num_envs)
+            ]
 
     # need to overwrite base class
     def batch_act(self, obss):
@@ -115,7 +127,16 @@ class LaggyActor(Actor):
 
 class NoisyActor(Actor):
     """Noisy actor"""
-    def __init__(self, obs_space, act_space, actor: Actor, eps: float, preserve_norm: bool = False, seed: int = 0):
+
+    def __init__(
+        self,
+        obs_space,
+        act_space,
+        actor: Actor,
+        eps: float,
+        preserve_norm: bool = False,
+        seed: int = 0,
+    ):
         super().__init__(obs_space, act_space)
         self.actor = actor
         self.eps = eps
@@ -131,8 +152,8 @@ class NoisyActor(Actor):
             self.repeat -= 1
             return self.action
         elif self.np_random.random() < self.eps:
-        # elif np.random.rand() < self.eps:
-            if 'maze' in Args.env_name or 'Maze' in Args.env_name:
+            # elif np.random.rand() < self.eps:
+            if "maze" in Args.env_name or "Maze" in Args.env_name:
                 self.repeat = 4
             else:
                 self.repeat = 0
@@ -160,9 +181,11 @@ class NoisyActor(Actor):
             if np.random.rand() < 0.5:
                 action1 = -action1
             rand_action = np.array([action0, action1], dtype=action.dtype)
-            # action = 0.0001 * np.array([np.cos(theta), np.sin(theta)], dtype=action.dtype)
+            # action = 0.0001 * np.array(
+                [np.cos(theta), np.sin(theta)], dtype=action.dtype)
             # print("use norm")
-            # action = np.linalg.norm(action) * np.array([np.cos(theta), np.sin(theta)], dtype=action.dtype)
+            # action = np.linalg.norm(action) * np.array([
+                np.cos(theta), np.sin(theta)], dtype=action.dtype)
             """
             return rand_action
         else:

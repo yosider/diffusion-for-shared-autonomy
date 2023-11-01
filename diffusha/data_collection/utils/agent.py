@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from distutils.version import LooseVersion
+
 import numpy as np
-import torch
-from torch import distributions, nn
 import pfrl
+import torch
 from pfrl import replay_buffers
 from pfrl.nn.lmbda import Lambda
+from torch import distributions, nn
 
 
 def get_agent(sample_env, policy_output_scale, batch_size, replay_start_size):
@@ -64,7 +65,7 @@ def get_agent(sample_env, policy_output_scale, batch_size, replay_start_size):
     q_func1, q_func1_optimizer = make_q_func_with_optimizer()
     q_func2, q_func2_optimizer = make_q_func_with_optimizer()
 
-    rbuf = replay_buffers.ReplayBuffer(10 ** 4)
+    rbuf = replay_buffers.ReplayBuffer(10**4)
 
     def burnin_action_func():
         """Select random actions until model is updated one or more times."""

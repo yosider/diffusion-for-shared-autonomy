@@ -18,6 +18,7 @@ This should make it easier to adjust values.
 """
 
 import numpy as np
+
 from diffusha.actor import Actor
 
 stick_height = 0.12
@@ -31,6 +32,7 @@ eps = 0.02
 # NOTE: normalized obs space
 # goal locations: (0.333, 0.5, 0.2), (0.666, 0.5, 0.2)
 # limits: (-0.5, -0.5, -0.5) -> (0.5, 0.5, 0.5)
+
 
 class UR5PlaceHoopController(Actor):
     def __init__(self, obs_space, act_space) -> None:
@@ -58,7 +60,7 @@ class UR5PlaceHoopController(Actor):
         x, y, z = curr_pos
 
         if np.linalg.norm(curr_pos - self._goal_pos) < eps:
-            print('Success!!')
+            print("Success!!")
             vx, vy, vz = 0, 0, 0
 
         elif z <= stick_height:
@@ -94,7 +96,7 @@ class UR5PlaceHoopController(Actor):
     def get_action(self, location, velocity, target):
         """Copied from d4rl pointmaze waypoint controller"""
         if np.linalg.norm(self._target - np.array(self.gridify_state(target))) > 1e-3:
-            #print('New target!', target, 'old:', self._target)
+            # print('New target!', target, 'old:', self._target)
             self._new_target(location, target)
 
         dist = np.linalg.norm(location - self._target)
@@ -112,10 +114,17 @@ class UR5PlaceHoopController(Actor):
         action = self.p_gain * prop + self.d_gain * velocity
 
         dist_next_wpnt = np.linalg.norm(location - next_wpnt)
-        if task_not_solved and (dist_next_wpnt < self.solve_thresh) and (vel_norm<self.vel_thresh):
+        if (
+            task_not_solved
+            and (dist_next_wpnt < self.solve_thresh)
+            and (vel_norm < self.vel_thresh)
+        ):
             self._waypoint_idx += 1
-            if self._waypoint_idx == len(self._waypoints)-1:
-                assert np.linalg.norm(self._waypoints[self._waypoint_idx] - self._target) <= self.solve_thresh
+            if self._waypoint_idx == len(self._waypoints) - 1:
+                assert (
+                    np.linalg.norm(self._waypoints[self._waypoint_idx] - self._target)
+                    <= self.solve_thresh
+                )
 
         self._waypoint_prev_loc = location
         action = np.clip(action, -1.0, 1.0)

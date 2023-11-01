@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-"""Patch multiprocessing.arbitrary_address in python 3.9 that is known to cause Address already in use error.
-
+"""
+Patch multiprocessing.arbitrary_address in python 3.9 that is known to cause 
+Address already in use error.
 https://github.com/SeldonIO/seldon-core/issues/3720#issuecomment-1313212063
 """
 
+import os
 import tempfile
 from multiprocessing import connection, util
 from multiprocessing.connection import _mmap_counter

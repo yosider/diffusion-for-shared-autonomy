@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-from typing import Optional
 import os
-from pathlib import Path
 import random
+from pathlib import Path
+from typing import Optional
+
 import numpy as np
 import torch
 from torch.optim import optimizer
-from torch.utils.data import IterableDataset, DataLoader
+from torch.utils.data import DataLoader, IterableDataset
+
+import wandb
+from diffusha.config.default_args import Args
 from diffusha.data_collection.env import is_lunarlander, make_env
 from diffusha.data_collection.generate_data import ReplayBuffer
-from diffusha.config.default_args import Args
-import wandb
-
-from diffusha.diffusion.ddpm import (
+from diffusha.diffusion.ddpm import (  # PartiallySmallNoiseDiffusionCore,
     DiffusionCore,
     DiffusionModel,
-    # PartiallySmallNoiseDiffusionCore,
     Trainer,
 )
 
@@ -154,10 +154,11 @@ def main():
 
 if __name__ == "__main__":
     # Apply patch on multiprocessing library
-    from diffusha.utils import patch
-
     import argparse
+
     from params_proto.hyper import Sweep
+
+    from diffusha.utils import patch
 
     parser = argparse.ArgumentParser()
     parser.add_argument("sweep_file", type=str, help="sweep file")

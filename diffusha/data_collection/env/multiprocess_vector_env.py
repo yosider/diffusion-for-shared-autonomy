@@ -1,13 +1,12 @@
-import signal
 import os
+import signal
 import sys
 import warnings
 from multiprocessing import Pipe, Process
 
 import numpy as np
-from torch.distributions.utils import lazy_property
-
 import pfrl
+from torch.distributions.utils import lazy_property
 
 
 def worker(remote, env_fn):
@@ -15,8 +14,13 @@ def worker(remote, env_fn):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     # Redirect stdout/stderr to files
-    sys.stdout = open(os.path.join(os.environ['RMX_OUTPUT_DIR'], str(os.getpid()) + ".out.txt"), "a")
-    sys.stderr = open(os.path.join(os.environ['RMX_OUTPUT_DIR'], str(os.getpid()) + "_error.out.txt"), "a")
+    sys.stdout = open(
+        os.path.join(os.environ["RMX_OUTPUT_DIR"], str(os.getpid()) + ".out.txt"), "a"
+    )
+    sys.stderr = open(
+        os.path.join(os.environ["RMX_OUTPUT_DIR"], str(os.getpid()) + "_error.out.txt"),
+        "a",
+    )
 
     env = env_fn()
     try:

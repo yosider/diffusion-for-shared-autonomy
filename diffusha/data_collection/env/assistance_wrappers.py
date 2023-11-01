@@ -1,31 +1,34 @@
 #!/usr/bin/env python3
 """Remove goal info from state"""
-from typing import List, Any
-import numpy as np
-from diffusha.actor.base import Actor
 from copy import deepcopy
-from gym.core import ActType, Wrapper, ObservationWrapper, Tuple, ObsType
+from typing import Any, List
+
+import numpy as np
 from gym import error, spaces
+from gym.core import ActType, ObservationWrapper, ObsType, Tuple, Wrapper
+
+from diffusha.actor.base import Actor
+
 
 class LunarLanderSplitObsWrapper(ObservationWrapper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        assert 'LunarLander' in self.env.unwrapped.spec.name
+        assert "LunarLander" in self.env.unwrapped.spec.name
 
         self.pilot_observation_space = self.observation_space
-        lvl = self.env.unwrapped.spec.name.split('-')[-1]
-        if lvl == 'v1':  # Reach
+        lvl = self.env.unwrapped.spec.name.split("-")[-1]
+        if lvl == "v1":  # Reach
             _state_size = self.observation_space.low.size - 2
             self.copilot_observation_space = spaces.Box(
                 -np.inf, np.inf, shape=(_state_size,), dtype=np.float32
             )
-        elif lvl == 'v5':  # Land with randomlized helipad
+        elif lvl == "v5":  # Land with randomlized helipad
             _state_size = self.observation_space.low.size - 1
             self.copilot_observation_space = spaces.Box(
                 -np.inf, np.inf, shape=(_state_size,), dtype=np.float32
             )
         else:
-            raise RuntimeError(f'Env {self.env} is not supported by SplitObsWrapper')
+            raise RuntimeError(f"Env {self.env} is not supported by SplitObsWrapper")
 
     def observation(self, obs):
         """
@@ -35,24 +38,26 @@ class LunarLanderSplitObsWrapper(ObservationWrapper):
         elif v5:
           obs += [helipad_x]
         """
-        lvl = self.env.unwrapped.spec.name.split('-')[-1]
+        lvl = self.env.unwrapped.spec.name.split("-")[-1]
         pilot_obs = obs
-        if lvl == 'v1':  # Reach
+        if lvl == "v1":  # Reach
             copilot_obs = obs[:-2]
-        elif lvl == 'v5':  # Land (helipad randomized)
+        elif lvl == "v5":  # Land (helipad randomized)
             copilot_obs = obs[:-1]
         else:
-            raise RuntimeError(f'Unknown env: {self.env.spec.name}')
+            raise RuntimeError(f"Unknown env: {self.env.spec.name}")
 
-        return {'pilot': pilot_obs, 'copilot': copilot_obs}
+        return {"pilot": pilot_obs, "copilot": copilot_obs}
 
 
 class BlockPushExpandObsWrapper(ObservationWrapper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        assert 'Push' in self.env.unwrapped.spec.name
+        assert "Push" in self.env.unwrapped.spec.name
 
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,), dtype=np.float32)
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(7,), dtype=np.float32
+        )
 
     def observation(self, obs):
         """
@@ -66,7 +71,12 @@ class BlockPushExpandObsWrapper(ObservationWrapper):
         target2_orientation:Box(-6.2831855, 6.2831855, (1,), float32))
         """
         new_obs = []
-        for key in ['block_translation', 'block_orientation', 'effector_translation', 'effector_target_translation']:
+        for key in [
+            "block_translation",
+            "block_orientation",
+            "effector_translation",
+            "effector_target_translation",
+        ]:
             new_obs.extend(obs[key])
         return np.array(new_obs)
 
@@ -74,23 +84,25 @@ class BlockPushExpandObsWrapper(ObservationWrapper):
 class BlockPushSplitObsWrapper(ObservationWrapper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        assert 'Push' in self.env.unwrapped.spec.name
+        assert "Push" in self.env.unwrapped.spec.name
 
         self.pilot_observation_space = self.observation_space
         # import pdb; pdb.set_trace()
         _state_size = self.observation_space.low.size - 8
-        self.copilot_observation_space = spaces.Box(-np.inf, np.inf, shape=(_state_size,), dtype=np.float32)
+        self.copilot_observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(_state_size,), dtype=np.float32
+        )
 
     def observation(self, obs):
         pilot_obs = obs
         copilot_obs = obs[:-8]
-        return {'pilot': pilot_obs, 'copilot': copilot_obs}
+        return {"pilot": pilot_obs, "copilot": copilot_obs}
 
 
 class BlockPushMirrorObsWrapper(Wrapper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        assert 'Push' in self.env.unwrapped.spec.name
+        assert "Push" in self.env.unwrapped.spec.name
 
     def step(self, act):
         new_act = self.action(act)
@@ -109,18 +121,25 @@ class BlockPushMirrorObsWrapper(Wrapper):
         """Mirror observation along with x = 0 (i.e., just flip x axis values!!)"""
         new_obs = deepcopy(obs)  # Let's try not to update the values in-place
         # Flip x values of translations:
-        for key in ['block_translation', 'effector_translation', 'effector_target_translation']:
+        for key in [
+            "block_translation",
+            "effector_translation",
+            "effector_target_translation",
+        ]:
             new_obs[key][0] = -obs[key][0]
 
-        block_ori = obs['block_orientation']
-        if - np.pi < block_ori + np.pi < np.pi:
-            new_obs['block_orientation'] = block_ori + np.pi
+        block_ori = obs["block_orientation"]
+        if -np.pi < block_ori + np.pi < np.pi:
+            new_obs["block_orientation"] = block_ori + np.pi
         else:
-            new_obs['block_orientation'] = block_ori - np.pi
+            new_obs["block_orientation"] = block_ori - np.pi
 
-        assert - np.pi < new_obs['block_orientation'] < np.pi, f'Hmmm the observation is {obs}'
+        assert (
+            -np.pi < new_obs["block_orientation"] < np.pi
+        ), f"Hmmm the observation is {obs}"
 
         return new_obs
+
 
 class BlockPushMirrorObsActorWrapper:
     def __init__(self, actor: Actor) -> None:
@@ -150,10 +169,9 @@ class BlockPushMirrorObsActorWrapper:
 
         return new_obs
 
-
     def _flip_act(self, act: np.ndarray):
         new_act = deepcopy(act)
-        new_act[0] = - act[0]
+        new_act[0] = -act[0]
         return new_act
 
     def __getattr__(self, __name: str) -> Any:
