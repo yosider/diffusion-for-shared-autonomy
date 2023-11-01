@@ -25,7 +25,8 @@ def get_frame(
     # frame: (h, w, c)
     fontScale = 0.3
 
-    env_name = env.unwrapped.spec.id
+    # env_name = env.unwrapped.spec.id  # TODO: not exist
+    env_name = env.unwrapped.spec.name
 
     if frame is None:
         frame = np.ascontiguousarray(env.render(mode="rgb_array"), dtype=np.uint8)

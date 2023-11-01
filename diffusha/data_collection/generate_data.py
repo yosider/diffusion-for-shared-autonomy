@@ -19,13 +19,13 @@ import wandb
 from diffusha.actor import ExpertActor
 from diffusha.config.default_args import Args
 from diffusha.data_collection.config.default_args import DCArgs
+from diffusha.data_collection.env import make_env
 from diffusha.data_collection.env.assistance_wrappers import (
     BlockPushMirrorObsActorWrapper,
 )
+from diffusha.data_collection.utils.agent import get_agent
 
-from .env import make_env
-from .train_sac import TIME_LIMIT
-from .utils.agent import get_agent
+# from .train_sac import TIME_LIMIT
 
 
 class ReplayBuffer:
@@ -96,8 +96,8 @@ def main(save_video):
 
     if "LunarLander" in DCArgs.env_name:
         lvl = DCArgs.env_name.split("-")[-1]
-        modeldir = f"{DCArgs.lunar_sac_model_dir}/{lvl}"
-        datadir = f"{DCArgs.lunar_data_dir}/{lvl}/randp_{DCArgs.randp}"
+        modeldir = f"{DCArgs.lunarlander_sac_model_dir}/{lvl}"
+        datadir = f"{DCArgs.lunarlander_data_dir}/{lvl}/randp_{DCArgs.randp}"
     elif "Push" in DCArgs.env_name:
         modeldir = Path(DCArgs.blockpush_sac_model_dir)
         datadir = (
