@@ -5,6 +5,7 @@ tmp/
 
 *.py[cod]
 *.egg
+*.egg-info
 build
 htmlcov
 
@@ -18,3 +19,4 @@ etc/
 .env
 .python-version
 tmp/
+data-dir/
