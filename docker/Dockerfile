@@ -195,4 +195,7 @@ ENV D4RL_SUPPRESS_IMPORT_ERROR=1
 # Avoid `fatal: detected dubious ownership in repository at '/code'` by git
 RUN git config --global --add safe.directory /code
 
+# set output directory
+ENV RMX_OUTPUT_DIR=/outdir
+
 ENTRYPOINT ["/opt/mujoco_py/vendor/Xdummy-entrypoint"]
