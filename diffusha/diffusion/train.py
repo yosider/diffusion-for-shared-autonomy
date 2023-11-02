@@ -67,7 +67,7 @@ class MultiExpertTransitionDataset(IterableDataset):
 def get_datadir(env_name, randp):
     if "LunarLander" in env_name:
         lvl = env_name.split("-")[-1]
-        data_dir = f"{Args.lunar_data_dir}/{lvl}/randp_{randp:.1f}"
+        data_dir = f"{Args.lunarlander_data_dir}/{lvl}/randp_{randp:.1f}"
     elif "simple-two-goals" in env_name:
         # Use Simple Multi Goal experts
         data_dir = [

@@ -354,15 +354,10 @@ class Trainer:
 
                         # LunarLander
                         lvl = envname.split("-")[-1]
-                        lvl2modeldir = {
-                            "v1": DCArgs.sac_v1_model_dir,
-                            "v2": DCArgs.sac_v2_model_dir,
-                            "v3": DCArgs.sac_v3_model_dir,
-                            "v4": DCArgs.sac_v4_model_dir,
-                            "v5": DCArgs.sac_v5_model_dir,
-                        }
-                        return initial_expert_agent(make_eval_env, lvl2modeldir[lvl])
+                        modeldir = f"{DCArgs.lunarlander_sac_model_dir}/{lvl}"
+                        return initial_expert_agent(make_eval_env, modeldir)
                     elif "Push" in envname:
+                        # TODO: needs to be fixed as above?
                         modeldir = Path(Args.sac_model_dir) / Args.pushenv_model_dir
                         return initial_expert_agent(make_eval_env, modeldir)
                     else:
