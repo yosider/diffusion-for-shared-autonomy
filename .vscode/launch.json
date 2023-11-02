@@ -17,6 +17,18 @@
                 "--sweep-file",
                 "diffusha/data_collection/config/sweep/sweep_lander-v1.jsonl",
             ]
+        },
+        {
+            "name": "flip",
+            "type": "python",
+            "request": "launch",
+            "program": "diffusha/data_collection/flip_replay.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "/data/replay/blockpush/target/randp_0.0",
+                "/data/replay/blockpush/target-flipped/randp_0.0"
+            ]
         }
     ]
 }
