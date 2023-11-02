@@ -357,8 +357,9 @@ class Trainer:
                         modeldir = f"{DCArgs.lunarlander_sac_model_dir}/{lvl}"
                         return initial_expert_agent(make_eval_env, modeldir)
                     elif "Push" in envname:
-                        # TODO: needs to be fixed as above?
-                        modeldir = Path(Args.sac_model_dir) / Args.pushenv_model_dir
+                        from diffusha.data_collection.config.default_args import DCArgs
+
+                        modeldir = DCArgs.blockpush_sac_model_dir
                         return initial_expert_agent(make_eval_env, modeldir)
                     else:
                         raise ValueError(f"Unknown env name: {envname}\t{sample_env}")
