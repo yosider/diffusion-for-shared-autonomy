@@ -20,3 +20,4 @@ etc/
 .python-version
 tmp/
 data-dir/
+output-dir/
