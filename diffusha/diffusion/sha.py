@@ -42,7 +42,7 @@ if __name__ == "__main__":
     from params_proto.hyper import Sweep
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("sweep_file", type=str, help="sweep file")
+    parser.add_argument("--sweep-file", type=str, help="sweep file")
     parser.add_argument(
         "-l", "--line-number", type=int, help="line number of the sweep-file"
     )
