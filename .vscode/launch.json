@@ -39,9 +39,13 @@
             "justMyCode": true,
             "args": [
                 "--sweep-file",
-                "diffusha/config/sweep/sweep-lunarlander.jsonl",
+                // "diffusha/config/sweep/sweep-lunarlander.jsonl",
+                // "-l",
+                // // "1",
+                // "0",
+                "diffusha/config/sweep/sweep-blockpush.jsonl",
                 "-l",
-                "1",
+                "0",
             ]
         }
     ]
