@@ -35,8 +35,8 @@ if __name__ == "__main__":
     Path(args.tgt_dir).mkdir(mode=0o775, parents=True, exist_ok=False)
 
     # Convert files one by one from replay
+    print(f"loading from {replay.directory}...")
     for fname in replay.directory.iterdir():
-        print(f"loading {fname} from {replay.directory}...")
         buff = replay._file_cache[fname]
 
         """

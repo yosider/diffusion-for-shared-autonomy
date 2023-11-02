@@ -43,8 +43,8 @@ class ReplayBuffer:
         self._file_cache = {}
 
         # If there are files in the directory, lets read all files first
+        print(f"loading from {self.directory}...")
         for fname in self.directory.iterdir():
-            print(f"loading {fname} from {self.directory}...")
             self._file_cache[fname] = torch.load(fname)
 
     def store(
