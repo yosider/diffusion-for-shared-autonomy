@@ -201,4 +201,13 @@ RUN pip install -U requests
 # set output directory
 ENV RMX_OUTPUT_DIR=/outdir
 
+# add user
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g ${GROUP_ID} user
+RUN useradd -u ${USER_ID} -g user -s /bin/bash -m user
+# RUN chown -R user:user /code /data /outdir /opt/mujoco_py
+
+USER user
+
 ENTRYPOINT ["/opt/mujoco_py/vendor/Xdummy-entrypoint"]

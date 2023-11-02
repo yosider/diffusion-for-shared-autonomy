@@ -5,14 +5,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    user: 1002:1002 # FIXME: replace with your user/group id
+      args:
+        USER_ID: "1002"
+        GROUP_ID: "1002"
     environment:
       - WANDB_API_KEY=${WANDB_API_KEY}
-      - REMOTE_WORKSPACE=${REMOTE_WORKSPACE}
+      - DIFFUSHA_DIR=${DIFFUSHA_DIR}
+      - NAS_DIR=${NAS_DIR}
     volumes:
-      - ${REMOTE_WORKSPACE}:/code
-      - ${REMOTE_WORKSPACE}/data-dir:/data
-      - ${REMOTE_WORKSPACE}/output-dir:/outdir
+      - ${DIFFUSHA_DIR}:/code
+      - ${NAS_DIR}/data-dir:/data
+      - ${NAS_DIR}/output-dir:/outdir
     working_dir: /code
     deploy:
       resources:
