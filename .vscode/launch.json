@@ -8,7 +8,7 @@
             "name": "generate data",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "diffusha/data_collection/generate_data.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
@@ -27,7 +27,21 @@
             "justMyCode": true,
             "args": [
                 "/data/replay/blockpush/target/randp_0.0",
-                "/data/replay/blockpush/target-flipped/randp_0.0"
+                "/data/replay/blockpush/target-flipped/randp_0.0",
+            ]
+        },
+        {
+            "name": "train",
+            "type": "python",
+            "request": "launch",
+            "program": "diffusha/diffusion/train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--sweep-file",
+                "diffusha/config/sweep/sweep-lunarlander.jsonl",
+                "-l",
+                "1",
             ]
         }
     ]
