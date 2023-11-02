@@ -151,6 +151,8 @@ def eval_assisted_actors(
 def eval_original_actors(
     make_env: Callable,
     expert_agent,
+    laggy_actor_repeat_prob: float,
+    noisy_actor_eps: float,
     num_episodes: int = 10,
     save_video: bool = False,
     histogram: bool = False,
@@ -389,7 +391,12 @@ if __name__ == "__main__":
 
     if args.save_video:
         actor2log_entry = eval_original_actors(
-            make_eval_env, expert_agent, num_episodes=args.num_episodes, save_video=True
+            make_eval_env,
+            expert_agent,
+            laggy_actor_repeat_prob,
+            noisy_actor_eps,
+            num_episodes=args.num_episodes,
+            save_video=True,
         )
         actor2assist_log_entry = eval_assisted_actors(
             diffusion,
@@ -406,6 +413,8 @@ if __name__ == "__main__":
         actor2log_entry = eval_original_actors(
             make_eval_env,
             expert_agent,
+            laggy_actor_repeat_prob,
+            noisy_actor_eps,
             num_episodes=args.num_episodes,
             save_video=False,
             use_vector_env=True,

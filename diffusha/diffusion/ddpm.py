@@ -377,7 +377,12 @@ class Trainer:
 
                     print("Evaluating original actors...")
                     log_entry = eval_original_actors(
-                        make_eval_env, expert_agent, num_episodes=20, histogram=True
+                        make_eval_env,
+                        expert_agent,
+                        laggy_actor_repeat_prob=Args.laggy_actor_repeat_prob,
+                        noisy_actor_eps=Args.noisy_actor_eps,
+                        num_episodes=20,
+                        histogram=True,
                     )
                     # Dirty but not sure how to use wandb properly in this case...
                     wandb.log(
@@ -408,6 +413,8 @@ class Trainer:
                         make_eval_env,
                         expert_agent,
                         fwd_diff_ratio=Args.fwd_diff_ratio,
+                        laggy_actor_repeat_prob=Args.laggy_actor_repeat_prob,
+                        noisy_actor_eps=Args.noisy_actor_eps,
                         num_episodes=20,
                         histogram=True,
                         actor_list=["expert", "noisy"],
