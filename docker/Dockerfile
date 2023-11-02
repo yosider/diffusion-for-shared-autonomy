@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install --upgrade pip
 RUN pip install pytest pytest-forked lz4 pyyaml
-RUN pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+RUN pip install torch --extra-index-url https://download.pytorch.org/whl/cu116
 
 # Install typical dependencies
 RUN pip install einops scikit-learn tqdm scipy h5py matplotlib
@@ -194,6 +194,9 @@ ENV D4RL_SUPPRESS_IMPORT_ERROR=1
 
 # Avoid `fatal: detected dubious ownership in repository at '/code'` by git
 RUN git config --global --add safe.directory /code
+
+# Avoid requests warning
+RUN pip install -U requests
 
 # set output directory
 ENV RMX_OUTPUT_DIR=/outdir
