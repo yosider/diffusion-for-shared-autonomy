@@ -36,7 +36,7 @@ from diffusha.diffusion.evaluation.eval import (
 )
 from diffusha.diffusion.evaluation.helper import prepare_diffusha
 from diffusha.diffusion.utils import initial_expert_agent
-from diffusha.utils import patch, reproducibility
+from diffusha.utils import patch
 
 # from diffusha.utils.tticslurm import report_cuda_error, upload_slurm_logs
 
@@ -208,7 +208,11 @@ if __name__ == "__main__":
 
     import wandb
     from diffusha.data_collection.env import make_env
-    from diffusha.diffusion.evaluation.eval import eval_diffusion
+    from diffusha.utils.reproducibility import set_deterministic
+
+    # from diffusha.diffusion.evaluation.eval import eval_diffusion
+
+    set_deterministic()  # NOTE: moved from toplevel to here
 
     parser = argparse.ArgumentParser()
 
