@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import os
-from pathlib import Path
+# import os
+# from pathlib import Path
 
 import torch
 
-import wandb
+# import wandb
 from diffusha.config.default_args import Args
 from diffusha.data_collection.env import make_env
 
@@ -15,8 +15,8 @@ def prepare_diffusha(
     step,
     env_name,
     fwd_diff_ratio,
-    laggy_actor_repeat_prob,
-    noisy_actor_eps,
+    laggy_actor_repeat_prob=None,
+    noisy_actor_eps=None,
 ):
     """Load hyperparmeters from wandb, and load a pytorch model from birch/elm, and return an instantiated diffusion model."""
     from diffusha.diffusion.ddpm import DiffusionCore, DiffusionModel
@@ -25,8 +25,10 @@ def prepare_diffusha(
 
     # Overwrite these parameters
     Args.fwd_diff_ratio = fwd_diff_ratio
-    Args.laggy_actor_repeat_prob = laggy_actor_repeat_prob
-    Args.noisy_actor_eps = noisy_actor_eps
+    if laggy_actor_repeat_prob is not None:
+        Args.laggy_actor_repeat_prob = laggy_actor_repeat_prob
+    if noisy_actor_eps is not None:
+        Args.noisy_actor_eps = noisy_actor_eps
 
     if "LunarLander" in env_name:
         sample_env = make_env(env_name, seed=0, split_obs=True, test=True)
