@@ -12,6 +12,9 @@ services:
       - WANDB_API_KEY=${WANDB_API_KEY}
       - DIFFUSHA_DIR=${DIFFUSHA_DIR}
       - NAS_DIR=${NAS_DIR}
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1 # remove?
+      - LIBGL_ALWAYS_INDIRECT=1 # remove?
     volumes:
       - ${DIFFUSHA_DIR}:/code
       - ${NAS_DIR}/data-dir:/data

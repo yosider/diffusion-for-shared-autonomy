@@ -177,6 +177,9 @@ RUN apt-get update && apt-get install -y \
     libcudnn8-dev \
     libcudnn8
 
+# To test GUI
+RUN apt-get install -y x11-apps
+
 # NOTE: Without this, singularity fails with
 # OSError: [Errno 30] Read-only file system: b'/usr/local/lib/python3.9/dist-packages/mujoco_py/generated/mujocopy-buildlock'
 RUN chmod a+rwx -R /usr/local/lib/python3.9/dist-packages/mujoco_py/generated
