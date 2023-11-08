@@ -18,6 +18,7 @@ etc/
 
 .env
 .python-version
+*.out
 tmp/
 data-dir/
 output-dir/
