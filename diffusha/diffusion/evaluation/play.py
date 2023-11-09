@@ -1,101 +1,74 @@
+import argparse
 import json
-from typing import Callable
-
-from tqdm import tqdm
+import time
+from pathlib import Path
 
 from diffusha.actor import LunarLanderKeyboardActor
 from diffusha.actor.assistive import DiffusionAssistedActor
-from diffusha.actor.base import Actor
 from diffusha.config.default_args import Args
-from diffusha.diffusion.ddpm import DiffusionModel
-
-# from diffusha.diffusion.evaluation.eval import evaluate
+from diffusha.data_collection.env import make_env
 from diffusha.diffusion.evaluation.helper import prepare_diffusha
-from diffusha.utils import patch
+from diffusha.utils.reproducibility import set_deterministic
 
+set_deterministic()  # NOTE: moved from toplevel to here
 
-def eval_assisted_actors(
-    diffusion: DiffusionModel,
-    make_env: Callable,
-    fwd_diff_ratio: float,
-    num_episodes: int = 10,
-):
-    """
-    Create DiffusionAssistedActor for each expert obtained from get_actors func,
-    and evaluate them with evaluate function.
-    """
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--env-name",
+    default="LunarLander-v1",
+    choices=[
+        "Maze2d-simple-two-goals-v0",
+        "LunarLander-v1",
+        "LunarLander-v5",
+        "BlockPushMultimodal-v1",
+    ],
+    help="what env to use",
+)
+parser.add_argument(
+    "--no-assist", action="store_true", help="whether to use assistive actor"
+)
+parser.add_argument("--fps", type=int, default=30, help="frames per second")
+args = parser.parse_args()
+args.num_episodes = 20
 
-    sample_env = make_env()
-    if hasattr(sample_env, "copilot_observation_space"):
-        obs_space = sample_env.copilot_observation_space
-    else:
-        obs_space = sample_env.observation_space
-    act_space = sample_env.action_space
+fwd_diff_ratio = Args.fwd_diff_ratio
 
-    user_actor = LunarLanderKeyboardActor(sample_env)
-    actor = DiffusionAssistedActor(
-        obs_space, act_space, diffusion, user_actor, fwd_diff_ratio
-    )
+# create env
+env_name = args.env_name
+if "maze2d" in env_name and "goal" in env_name:
+    # Fix the goal to bottom left if it is maze2d env
+    env_args = {
+        "env_name": env_name,
+        "test": True,
+        "terminate_at_any_goal": True,
+        "bigger_goal": True,
+        "goal": "left",
+    }
+elif "LunarLander" in env_name:
+    env_args = {
+        "env_name": env_name,
+        "test": True,
+        "split_obs": True,
+    }
+elif "Push" in env_name:
+    env_args = {
+        "env_name": env_name,
+        "test": True,
+        "user_goal": "target",
+    }
+else:
+    raise RuntimeError()
 
-    # env = make_env(test=True, seed=0, time_limit=TIME_LIMIT)
-    sample_env = make_env(seed=0)
+sample_env = make_env(**env_args)
 
-    for _ in tqdm(range(num_episodes)):
-        done = False
-        obs = sample_env.reset()
-        while not done:
-            action, diff = actor.act(obs, report_diff=True)
-            obs, rew, done, info = sample_env.step(action)
-            sample_env.render()
+# create actor
+actor = LunarLanderKeyboardActor(sample_env)
 
-
-if __name__ == "__main__":
-    import argparse
-    from pathlib import Path
-
-    from diffusha.data_collection.env import make_env
-    from diffusha.utils.reproducibility import set_deterministic
-
-    set_deterministic()  # NOTE: moved from toplevel to here
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--sweep", help="sweep file")
-    parser.add_argument(
-        "-l", "--line-number", type=int, help="line number of the sweep-file"
-    )
-    parser.add_argument(
-        "--env-name",
-        default="LunarLander-v1",
-        choices=[
-            "Maze2d-simple-two-goals-v0",
-            "LunarLander-v1",
-            "LunarLander-v5",
-            "BlockPushMultimodal-v1",
-        ],
-        help="what env to use",
-    )
-    parser.add_argument("--out-dir", help="Output directory")
-    parser.add_argument(
-        "--save-video", action="store_true", help="Save videos of the episodes"
-    )
-    parser.add_argument(
-        "--force", action="store_true", help="force to overwrite the existing file"
-    )
-    args = parser.parse_args()
-    args.num_episodes = 20
-
-    fwd_diff_ratio = Args.fwd_diff_ratio
-
-    # timestamp = datetime.datetime.now().strftime("%Y%m%dT%H%M%S.%f")
-    directory = Path(Args.results_dir) / "assistance" / args.env_name.lower()
-    directory.mkdir(mode=0o775, parents=True, exist_ok=True)
-
+if not args.no_assist:
     # Read config (Args) from config.json
     with open(Path(__file__).parent / "configs.json", "r") as f:
         env2config = json.load(f)
 
-    config = env2config[args.env_name]
     env2step = {
         "maze2d-simple-two-goals": 9999,
         "LunarLander-v1": 29999,
@@ -112,65 +85,36 @@ if __name__ == "__main__":
         fwd_diff_ratio,
     )
 
-    saved_keys = [
-        "fwd_diff_ratio",
-        "obs_noise_level",
-        "obs_noise_cfg_prob",
-    ]
-    config = {}
-    config["args"] = {
-        key: val
-        for key, val in vars(args).items()
-        if (
-            key not in ["sweep_file", "line_number", "force", "dir_name", "num_env"]
-            and not key.startswith("_")
-        )
-    }
-    config["Args"] = {
-        key: val
-        for key, val in vars(Args).items()
-        if (key in saved_keys and not key.startswith("_"))
-    }
-
-    env_name = args.env_name
-    if "maze2d" in env_name and "goal" in env_name:
-        # Fix the goal to bottom left if it is maze2d env
-        def make_eval_env(**kwargs):
-            return make_env(
-                env_name,
-                test=True,
-                terminate_at_any_goal=True,
-                bigger_goal=True,
-                goal="left",
-                **kwargs,
-            )
-
-    elif "LunarLander" in env_name:
-
-        def make_eval_env(**kwargs):
-            return make_env(
-                env_name,
-                test=True,
-                split_obs=True,
-                **kwargs,
-            )
-
-    elif "Push" in env_name:
-
-        def make_eval_env(**kwargs):
-            return make_env(
-                env_name,
-                test=True,
-                user_goal="target",
-                **kwargs,
-            )
-
+    if hasattr(sample_env, "copilot_observation_space"):
+        obs_space = sample_env.copilot_observation_space
     else:
-        raise RuntimeError()
+        obs_space = sample_env.observation_space
+    act_space = sample_env.action_space
 
-    eval_assisted_actors(
-        diffusion,
-        make_eval_env,
-        fwd_diff_ratio=fwd_diff_ratio,
-        num_episodes=args.num_episodes,
+    actor = DiffusionAssistedActor(
+        obs_space, act_space, diffusion, actor, fwd_diff_ratio
     )
+
+# play
+env = make_env(**env_args, seed=0)
+
+interval = 1.0 / args.fps
+
+for ep in range(args.num_episodes):
+    obs = env.reset()
+    done = False
+    r_ep = 0.0
+
+    while not done:
+        start_time = time.time()
+
+        env.render()
+        obs, r, done, _ = env.step(actor.act(obs))
+        r_ep += r
+
+        # manage fps
+        elapsed = time.time() - start_time
+        if elapsed < interval:
+            time.sleep(interval - elapsed)
+
+    print(f"episode {ep + 1}: reward = {r_ep:.2f}")

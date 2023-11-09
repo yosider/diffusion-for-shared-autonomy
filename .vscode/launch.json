@@ -13,6 +13,19 @@
             "justMyCode": true,
         },
         {
+            "name": "play",
+            "type": "python",
+            "request": "launch",
+            "program": "diffusha/diffusion/evaluation/play.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                // "--no-assist",
+                "--env-name=LunarLander-v1",
+                // "--env-name=LunarLander-v5",
+            ]
+        },
+        {
             "name": "generate data",
             "type": "python",
             "request": "launch",

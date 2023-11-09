@@ -19,5 +19,8 @@
                 "GitHub.copilot"
             ]
         }
+    },
+    "remoteEnv": {
+        "DISPLAY": ":${localEnv:DISPLAY}"
     }
 }

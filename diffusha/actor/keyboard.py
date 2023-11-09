@@ -11,6 +11,10 @@ from pygame.locals import (
     QUIT,
     RESIZABLE,
     VIDEORESIZE,
+    K_a,
+    K_d,
+    K_s,
+    K_w,
 )
 
 from diffusha.actor import Actor
@@ -31,29 +35,26 @@ class LunarLanderKeyboardActor(Actor):
         events = pygame.event.get()
         for event in events:
             if event.type == KEYDOWN:
-                if event.key == K_UP:
+                if event.key in [K_UP, K_w]:
                     self.human_agent_action[0] = -1.0
-                elif event.key == K_DOWN:
-                    self.human_agent_action[0] = 1.0
-                elif event.key == K_LEFT:
+                elif event.key in [K_DOWN, K_s]:
+                    self.human_agent_action[0] = +1.0
+                elif event.key in [K_LEFT, K_a]:
+                    self.human_agent_action[1] = +1.0
+                elif event.key in [K_RIGHT, K_d]:
                     self.human_agent_action[1] = -1.0
-                elif event.key == K_RIGHT:
-                    self.human_agent_action[1] = 1.0
             elif event.type == KEYUP:
                 if event.key == K_ESCAPE:
                     exit()
-                elif event.key in [K_UP, K_DOWN]:
+                elif event.key in [K_UP, K_DOWN, K_w, K_s]:
                     self.human_agent_action[0] = 0
-                elif event.key in [K_LEFT, K_RIGHT]:
+                elif event.key in [K_LEFT, K_RIGHT, K_a, K_d]:
                     self.human_agent_action[1] = 0
             elif event.type == VIDEORESIZE:
                 self.win = pygame.display.set_mode(event.size, RESIZABLE)
                 self.size = event.size
             elif event.type == QUIT:
                 exit()
-
-        if abs(self.human_agent_action[1]) < 0.1:  # TODO: ???
-            self.human_agent_action[0] = 0.0
 
         return self.human_agent_action
 
@@ -69,18 +70,17 @@ class LunarLanderKeyboardActor(Actor):
 if __name__ == "__main__":
     from diffusha.data_collection.env import make_env
 
-    env = make_env("LunarLander-v1", seed=1, test=False)
+    env = make_env("LunarLander-v1", seed=1, test=True)
 
     actor = LunarLanderKeyboardActor(env)
 
-    for _ in range(10):
+    for ep in range(10):
         ob = env.reset()
-        env.render()
         done = False
-        reward = 0.0
+        r_ep = 0.0
 
         while not done:
             env.render()
             ob, r, done, _ = env.step(actor.act(ob))
-            reward += r
-        print(reward)
+            r_ep += r
+        print(f"episode {ep + 1}: reward = {r_ep:.2f}")

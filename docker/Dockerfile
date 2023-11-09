@@ -139,33 +139,25 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install gym[box2d]==0.22 pfrl
 RUN pip install pygame opencv-python
-ENV SDL_VIDEODRIVER="dummy"
+# ENV SDL_VIDEODRIVER="dummy"  # remove for human playing
 RUN pip install params_proto termcolor pandas
 RUN pip install ConfigArgParse trimesh scipy h5py matplotlib mplot3d-dragger pyglet
 
 # block push environment dependencies (https://github.com/google-research/ibc)
-# RUN pip install \
-#     absl-py==0.12.0 \
-#     gin-config==0.4.0 \
-#     matplotlib==3.4.3 \
-#     mediapy==1.0.3 \
-#     opencv-python==4.5.3.56 \
-#     scipy==1.7.1 \
-#     tensorflow==2.6.0 \
-#     keras==2.6.0 \
-#     tf-agents==0.11.0rc0 \
-#     tqdm==4.62.2
+# 2023/11: updated to latest versions to avoid errors:
+# ImportError: cannot import name 'ParamSpec' from 'typing_extensions'
+# AttributeError: module 'numpy' has no attribute 'object'
 RUN pip install \
-    absl-py \
-    gin-config \
-    matplotlib \
-    mediapy \
-    opencv-python \
-    scipy \
-    tensorflow \
-    keras \
-    tf-agents \
-    tqdm
+    absl-py==2.0.0 \
+    gin-config==0.5.0 \
+    matplotlib==3.8.1 \
+    mediapy==1.1.9 \
+    opencv-python==4.8.1.78 \
+    scipy==1.11.3 \
+    tensorflow==2.14.0 \
+    keras==2.14.0 \
+    tf-agents==0.18.0 \
+    tqdm==4.66.1
 
 # numpy >= 1.19 (?) is required before pip installing pybullet!!
 RUN pip install -U numpy==1.21.3

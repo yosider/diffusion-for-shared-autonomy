@@ -34,7 +34,9 @@ class Args(ParamsProto):
     seed = 0
 
     # Used in evaluation
-    fwd_diff_ratio = 0.4
+    fwd_diff_ratio = 0.4  # gamma
+    # fwd_diff_ratio = 0.2
+    # fwd_diff_ratio = 0.1
     # TODO: modified in eval_assistance.py.__main__
     laggy_actor_repeat_prob = 0.8
     noisy_actor_eps = 0.8
